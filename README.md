@@ -43,6 +43,13 @@ See [IMPROVEMENTS.md](IMPROVEMENTS.md) for detailed documentation.
 
 ## Install
 
+### Clone the Repository
+
+```bash
+git clone https://github.com/hamza-sohrab/test-barcode-proj.git
+cd test-barcode-proj
+```
+
 ### Quick Setup (Automated)
 
 **For macOS/Linux users**, run the automated setup script:
