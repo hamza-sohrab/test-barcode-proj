@@ -46,12 +46,9 @@ Have these ready before starting:
 ### 2.1 Get the Code
 
 ```bash
-# Navigate to where you keep the project
-cd /path/to/test_barcodes_proj
-
-# Or if you're cloning fresh:
-# git clone <repository-url>
-# cd test_barcodes_proj
+# Clone the repository
+git clone https://github.com/hamza-sohrab/test-barcode-proj.git
+cd test-barcode-proj
 ```
 
 ### 2.2 Run Automated Setup (Recommended)
