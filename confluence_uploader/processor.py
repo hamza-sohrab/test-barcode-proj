@@ -311,8 +311,12 @@ def process_image_to_rows(image: Image.Image, barcodes: List[DetectedBarcode], o
 	# If both Code128 and DataBar are present, prefer Code128 and drop DataBar entries
 	has_code128 = any("Code" in (b.barcode_type or "") and "128" in b.barcode_type for b in barcodes)
 	has_databar = any("DataBar" in (b.barcode_type or "") for b in barcodes)
+	has_upcean_types = any(b.barcode_type in {"UPC-A", "UPC-E", "EAN-13", "EAN-8"} for b in barcodes)
 	if has_code128 and has_databar:
 		barcodes = [b for b in barcodes if "DataBar" not in (b.barcode_type or "")]
+	# If both Code128 and UPC/EAN are present, prefer Code128 (it often encodes the UPC + additional data)
+	if has_code128 and has_upcean_types:
+		barcodes = [b for b in barcodes if b.barcode_type not in {"UPC-A", "UPC-E", "EAN-13", "EAN-8"}]
 	rows: List[RowDraft] = []
 	for b in barcodes:
 		is_gs1 = _is_gs1_databar(b.barcode_type, b.barcode_value)
@@ -335,14 +339,15 @@ def process_image_to_rows(image: Image.Image, barcodes: List[DetectedBarcode], o
 		allow_web_for_type = b.barcode_type in ALLOWED_WEB_TYPES
 		if not name and allow_web_for_type and not is_price:
 			# Try Caper-style normalized candidates first (UPC/EAN resilient lookups)
-			candidates = normalize_candidates(b.barcode_value, b.barcode_type)
+			# Limit to first 2 candidates for speed (raw + primary normalized variant covers most cases)
+			candidates = normalize_candidates(b.barcode_value, b.barcode_type)[:2]
 			for cand in candidates:
 				if opts.deep_lookup and (opts.serp_key or (opts.cse_id and opts.google_key)) and not name:
-					name = deep_lookup_product_name(cand, serpapi_api_key=opts.serp_key, google_cse_id=opts.cse_id, google_api_key=opts.google_key)
+					name = deep_lookup_product_name(cand, serpapi_api_key=opts.serp_key, google_cse_id=opts.cse_id, google_api_key=opts.google_key, timeout=2.0)
 				if not name and opts.free_lookup:
-					name = duckduckgo_lookup(cand)
+					name = duckduckgo_lookup(cand, timeout=2.0)
 				if not name and opts.lookup:
-					name = lookup_product_name(cand)
+					name = lookup_product_name(cand, timeout=2.0)
 				if name:
 					break
 			if not name and opts.ocr:
