@@ -135,6 +135,23 @@ def _validate_name(candidate: Optional[str], barcode_value: str) -> Optional[str
 	if len(words) == 1 and len(letters_only) <= 6 and c.isupper():
 		return None
 	
+	# Reject short single-word names (likely OCR misreads from packaging)
+	# Real product names are usually multi-word or longer brand names
+	if len(words) == 1 and len(letters_only) < 6:
+		return None
+	
+	# Reject gibberish with poor vowel ratio (OCR misreads often lack proper vowel distribution)
+	# Real words typically have 30-50% vowels
+	vowels = len(re.findall(r"[aeiouAEIOU]", letters_only))
+	vowel_ratio = vowels / float(len(letters_only)) if letters_only else 0
+	if vowel_ratio < 0.20:  # Less than 20% vowels is very unlikely in real product names
+		return None
+	
+	# Reject gibberish with excessive consonant clusters (5+ consonants in a row)
+	# Real words rarely have long consonant runs
+	if re.search(r"[^aeiouAEIOU\s]{5,}", letters_only):
+		return None
+	
 	return c
 
 
