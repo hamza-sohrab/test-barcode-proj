@@ -355,6 +355,10 @@ def process_image_to_rows(image: Image.Image, barcodes: List[DetectedBarcode], o
 
 		name = _validate_name(name, b.barcode_value)
 		
+		# Add note for price-embedded barcodes
+		if is_price:
+			notes = "Price-Embedded"
+		
 		# Add note ONLY for difficult detections (required aggressive fallbacks)
 		# Check if detection was difficult by looking at the detection_method
 		if opts.mark_uncertain and not notes:
