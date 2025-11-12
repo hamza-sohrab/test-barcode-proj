@@ -1,0 +1,9 @@
+requests>=2.31.0
+pillow>=10.4.0
+pillow-heif>=0.16.0
+opencv-contrib-python-headless>=4.10.0.84
+zxing-cpp>=2.2.0
+pytesseract>=0.3.10
+python-dotenv>=1.0.1
+tqdm>=4.66.4
+pyzbar>=0.1.9

@@ -1,0 +1,443 @@
+<h1>Barcode Scanner Tool - Complete User Guide</h1>
+
+<ac:structured-macro ac:name="info">
+  <ac:rich-text-body>
+    <p>This tool automatically detects barcodes from images (including HEIC format), fetches product names, and uploads results to Confluence. Perfect for documenting test images, produce items, and barcode validation.</p>
+  </ac:rich-text-body>
+</ac:structured-macro>
+
+<h2>📋 Table of Contents</h2>
+<ac:structured-macro ac:name="toc">
+  <ac:parameter ac:name="minLevel">2</ac:parameter>
+  <ac:parameter ac:name="maxLevel">3</ac:parameter>
+</ac:structured-macro>
+
+<hr/>
+
+<h2>🔑 Step 1: Create Your Confluence API Token</h2>
+
+<p><strong>Why do I need this?</strong> The API token allows the tool to upload images and create tables on your behalf. Each person needs their own token.</p>
+
+<h3>1.1 Generate API Token</h3>
+
+<ol>
+  <li>Go to <strong><a href="https://id.atlassian.com/manage-profile/security/api-tokens">Atlassian Account Settings</a></strong></li>
+  <li>Click <strong>"Create API token"</strong></li>
+  <li>Enter a label (e.g., "Barcode Scanner Tool")</li>
+  <li>Click <strong>"Create"</strong></li>
+  <li><strong>Important:</strong> Copy the token immediately - you won't be able to see it again!</li>
+</ol>
+
+<ac:structured-macro ac:name="warning">
+  <ac:rich-text-body>
+    <p><strong>Security Note:</strong> Never share your API token with others! Each person should create their own token. Treat it like a password.</p>
+  </ac:rich-text-body>
+</ac:structured-macro>
+
+<h3>1.2 What You'll Need</h3>
+
+<p>Have these ready before starting:</p>
+
+<ul>
+  <li><strong>Confluence URL:</strong> <code>https://instacart.atlassian.net/wiki</code> (or your company's URL)</li>
+  <li><strong>Your Email:</strong> The email you use to log into Confluence</li>
+  <li><strong>API Token:</strong> The token you just created</li>
+</ul>
+
+<hr/>
+
+<h2>💻 Step 2: Install the Tool (First Time Only)</h2>
+
+<h3>2.1 Get the Code</h3>
+
+<ac:structured-macro ac:name="code">
+  <ac:parameter ac:name="language">bash</ac:parameter>
+  <ac:plain-text-body><![CDATA[# Navigate to where you keep the project
+cd /path/to/test_barcodes_proj
+
+# Or if you're cloning fresh:
+# git clone <repository-url>
+# cd test_barcodes_proj]]></ac:plain-text-body>
+</ac:structured-macro>
+
+<h3>2.2 Run Automated Setup (Recommended)</h3>
+
+<ac:structured-macro ac:name="code">
+  <ac:parameter ac:name="language">bash</ac:parameter>
+  <ac:plain-text-body><![CDATA[./setup.sh]]></ac:plain-text-body>
+</ac:structured-macro>
+
+<p>The setup script will:</p>
+<ol>
+  <li>✅ Check your Python version</li>
+  <li>✅ Install system dependencies (zbar library)</li>
+  <li>✅ Create a virtual environment</li>
+  <li>✅ Install all Python packages</li>
+  <li>✅ <strong>Prompt for your Confluence credentials</strong></li>
+</ol>
+
+<h3>2.3 Enter Your Credentials</h3>
+
+<p>When prompted, enter your information:</p>
+
+<ac:structured-macro ac:name="code">
+  <ac:parameter ac:name="language">bash</ac:parameter>
+  <ac:plain-text-body><![CDATA[⚠️  No credentials configured!
+
+Let's set up your Confluence credentials...
+(You can skip this and configure manually later)
+
+Configure credentials now? (y/n): y
+
+📝 Enter your Confluence credentials:
+
+Confluence URL [https://instacart.atlassian.net/wiki]: (press Enter)
+Your Confluence email: your.email@instacart.com
+Get your API token from: https://id.atlassian.com/manage-profile/security/api-tokens
+Your Confluence API token: (paste your token here)
+
+✅ Credentials saved to env.local]]></ac:plain-text-body>
+</ac:structured-macro>
+
+<ac:structured-macro ac:name="info">
+  <ac:rich-text-body>
+    <p><strong>You only do this once!</strong> Your credentials are saved and you won't be asked again.</p>
+  </ac:rich-text-body>
+</ac:structured-macro>
+
+<hr/>
+
+<h2>🚀 Step 3: Using the Tool</h2>
+
+<h3>3.1 Activate the Virtual Environment</h3>
+
+<p>Every time you use the tool, first activate the environment:</p>
+
+<ac:structured-macro ac:name="code">
+  <ac:parameter ac:name="language">bash</ac:parameter>
+  <ac:plain-text-body><![CDATA[cd /path/to/test_barcodes_proj
+source .venv/bin/activate]]></ac:plain-text-body>
+</ac:structured-macro>
+
+<p>You'll see <code>(.venv)</code> appear at the start of your terminal prompt.</p>
+
+<h3>3.2 Test Run (Dry Run - No Upload)</h3>
+
+<p>First, try a dry run to see what will be uploaded without actually uploading:</p>
+
+<ac:structured-macro ac:name="code">
+  <ac:parameter ac:name="language">bash</ac:parameter>
+  <ac:plain-text-body><![CDATA[python -m confluence_uploader.cli \
+  --src /path/to/your/images \
+  --dry-run]]></ac:plain-text-body>
+</ac:structured-macro>
+
+<p><strong>What you'll see:</strong></p>
+
+<ac:structured-macro ac:name="code">
+  <ac:parameter ac:name="language">text</ac:parameter>
+  <ac:plain-text-body><![CDATA[Scanning images: 100%|██████████| 10/10 [00:15<00:00]
+DRY RUN RESULTS:
+type=UPC-A	value=051000284174	name=Campbell's Clam Chowder	notes=
+type=UPC-E	value=04963406	name=Coke Coca-Cola	notes=
+type=DataBar	value=0100751972364415	name=	notes=]]></ac:plain-text-body>
+</ac:structured-macro>
+
+<h3>3.3 Upload to Confluence</h3>
+
+<p>Once you're happy with the dry run results, upload for real:</p>
+
+<ac:structured-macro ac:name="code">
+  <ac:parameter ac:name="language">bash</ac:parameter>
+  <ac:plain-text-body><![CDATA[python -m confluence_uploader.cli \
+  --src /path/to/your/images \
+  --page "https://instacart.atlassian.net/wiki/spaces/SPACE/pages/123456789/Your+Page"]]></ac:plain-text-body>
+</ac:structured-macro>
+
+<p><strong>Or use page ID directly:</strong></p>
+
+<ac:structured-macro ac:name="code">
+  <ac:parameter ac:name="language">bash</ac:parameter>
+  <ac:plain-text-body><![CDATA[python -m confluence_uploader.cli \
+  --src /path/to/your/images \
+  --page-id 123456789]]></ac:plain-text-body>
+</ac:structured-macro>
+
+<ac:structured-macro ac:name="tip">
+  <ac:rich-text-body>
+    <p><strong>Finding the Page ID:</strong> Look at your Confluence page URL. The page ID is the number after <code>/pages/</code></p>
+    <p>Example: <code>https://instacart.atlassian.net/wiki/spaces/TEST/pages/<strong>123456789</strong>/My-Page</code></p>
+  </ac:rich-text-body>
+</ac:structured-macro>
+
+<hr/>
+
+<h2>📂 Supported Image Formats</h2>
+
+<p>The tool works with:</p>
+
+<ul>
+  <li>✅ <strong>HEIC/HEIF</strong> (iPhone photos)</li>
+  <li>✅ <strong>JPEG/JPG</strong></li>
+  <li>✅ <strong>PNG</strong></li>
+  <li>✅ <strong>BMP, TIFF, WEBP</strong></li>
+  <li>✅ <strong>ZIP files</strong> containing images</li>
+</ul>
+
+<h2>🏷️ Supported Barcode Types</h2>
+
+<table>
+  <tbody>
+    <tr>
+      <th>Type</th>
+      <th>Description</th>
+      <th>Example Use Case</th>
+    </tr>
+    <tr>
+      <td><strong>UPC-A</strong></td>
+      <td>Standard US product barcodes</td>
+      <td>Most retail products</td>
+    </tr>
+    <tr>
+      <td><strong>UPC-E</strong></td>
+      <td>Compressed UPC codes</td>
+      <td>Small packages</td>
+    </tr>
+    <tr>
+      <td><strong>EAN-13/EAN-8</strong></td>
+      <td>European product codes</td>
+      <td>International products</td>
+    </tr>
+    <tr>
+      <td><strong>Code 128</strong></td>
+      <td>Manager markdowns, internal codes</td>
+      <td>Store-generated labels</td>
+    </tr>
+    <tr>
+      <td><strong>DataBar</strong></td>
+      <td>Produce items with weight/price</td>
+      <td>Fresh fruits, vegetables</td>
+    </tr>
+  </tbody>
+</table>
+
+<hr/>
+
+<h2>⚙️ Common Options</h2>
+
+<h3>Basic Usage</h3>
+
+<ac:structured-macro ac:name="code">
+  <ac:parameter ac:name="language">bash</ac:parameter>
+  <ac:plain-text-body><![CDATA[# Dry run (no upload, just preview)
+python -m confluence_uploader.cli --src /path/to/images --dry-run
+
+# Upload to Confluence
+python -m confluence_uploader.cli --src /path/to/images --page-id 123456789
+
+# Scan a ZIP file
+python -m confluence_uploader.cli --src /path/to/images.zip --page-id 123456789]]></ac:plain-text-body>
+</ac:structured-macro>
+
+<h3>Disable Lookups (Faster)</h3>
+
+<p>If you just need barcodes without product names:</p>
+
+<ac:structured-macro ac:name="code">
+  <ac:parameter ac:name="language">bash</ac:parameter>
+  <ac:plain-text-body><![CDATA[python -m confluence_uploader.cli \
+  --src /path/to/images \
+  --page-id 123456789 \
+  --no-lookup \
+  --no-deep-lookup \
+  --no-free-lookup \
+  --no-ocr]]></ac:plain-text-body>
+</ac:structured-macro>
+
+<hr/>
+
+<h2>✨ Smart Features</h2>
+
+<h3>🔄 Automatic Deduplication</h3>
+
+<ul>
+  <li><strong>Filename deduplication:</strong> If you have "item.HEIC" and "item.jpeg" (same item, different formats), only one is processed</li>
+  <li><strong>Barcode deduplication:</strong> Same barcode won't be uploaded twice in one run</li>
+  <li><strong>Page deduplication:</strong> Checks existing page content to avoid duplicates across multiple runs</li>
+</ul>
+
+<h3>🔍 Detection Modes</h3>
+
+<ul>
+  <li><strong>Standard mode:</strong> Fast detection for clear barcodes</li>
+  <li><strong>Aggressive mode:</strong> Tries harder on difficult images (rotations, enhancements, etc.)</li>
+</ul>
+
+<h3>🌐 Product Name Lookup</h3>
+
+<p>The tool tries multiple sources to find product names:</p>
+
+<ol>
+  <li><strong>OpenFoodFacts</strong> - Free database of food products</li>
+  <li><strong>DuckDuckGo</strong> - Free web search</li>
+  <li><strong>OCR</strong> - Reads text directly from the image</li>
+</ol>
+
+<hr/>
+
+<h2>🔧 Troubleshooting</h2>
+
+<h3>❌ "bad interpreter" Error</h3>
+
+<ac:structured-macro ac:name="code">
+  <ac:parameter ac:name="language">text</ac:parameter>
+  <ac:plain-text-body><![CDATA[bad interpreter: /Users/someone/.venv/bin/python3.13: no such file or directory]]></ac:plain-text-body>
+</ac:structured-macro>
+
+<p><strong>Solution:</strong> Delete the virtual environment and recreate it:</p>
+
+<ac:structured-macro ac:name="code">
+  <ac:parameter ac:name="language">bash</ac:parameter>
+  <ac:plain-text-body><![CDATA[rm -rf .venv
+./setup.sh]]></ac:plain-text-body>
+</ac:structured-macro>
+
+<h3>❌ "Unable to find zbar shared library"</h3>
+
+<p><strong>Solution:</strong> Install the zbar system library:</p>
+
+<ac:structured-macro ac:name="code">
+  <ac:parameter ac:name="language">bash</ac:parameter>
+  <ac:plain-text-body><![CDATA[# macOS
+brew install zbar
+
+# Ubuntu/Debian
+sudo apt-get install libzbar0]]></ac:plain-text-body>
+</ac:structured-macro>
+
+<h3>❌ "No barcodes detected"</h3>
+
+<p><strong>Possible causes:</strong></p>
+
+<ul>
+  <li>Images don't contain barcodes</li>
+  <li>Barcodes are too small or blurry</li>
+  <li>Try with <code>--aggressive</code> flag for difficult images</li>
+</ul>
+
+<h3>❌ Using Someone Else's Credentials</h3>
+
+<p><strong>Solution:</strong> Delete the old <code>env.local</code> and create your own:</p>
+
+<ac:structured-macro ac:name="code">
+  <ac:parameter ac:name="language">bash</ac:parameter>
+  <ac:plain-text-body><![CDATA[rm env.local
+./setup.sh  # Will prompt for YOUR credentials]]></ac:plain-text-body>
+</ac:structured-macro>
+
+<hr/>
+
+<h2>📖 Real-World Examples</h2>
+
+<h3>Example 1: Upload Test Images</h3>
+
+<ac:structured-macro ac:name="code">
+  <ac:parameter ac:name="language">bash</ac:parameter>
+  <ac:plain-text-body><![CDATA[# Preview first
+python -m confluence_uploader.cli \
+  --src ~/Desktop/test_images \
+  --dry-run
+
+# Upload to your test page
+python -m confluence_uploader.cli \
+  --src ~/Desktop/test_images \
+  --page-id 987654321]]></ac:plain-text-body>
+</ac:structured-macro>
+
+<h3>Example 2: Produce Items (Fast Mode)</h3>
+
+<ac:structured-macro ac:name="code">
+  <ac:parameter ac:name="language">bash</ac:parameter>
+  <ac:plain-text-body><![CDATA[# Skip lookups for faster processing
+python -m confluence_uploader.cli \
+  --src ~/Desktop/produce_images \
+  --page-id 987654321 \
+  --no-lookup --no-ocr]]></ac:plain-text-body>
+</ac:structured-macro>
+
+<h3>Example 3: Difficult Barcodes</h3>
+
+<ac:structured-macro ac:name="code">
+  <ac:parameter ac:name="language">bash</ac:parameter>
+  <ac:plain-text-body><![CDATA[# Use aggressive mode for hard-to-read barcodes
+python -m confluence_uploader.cli \
+  --src ~/Desktop/difficult_images \
+  --page-id 987654321 \
+  --aggressive]]></ac:plain-text-body>
+</ac:structured-macro>
+
+<hr/>
+
+<h2>❓ FAQ</h2>
+
+<h3>Q: Do I need to setup credentials every time?</h3>
+
+<p><strong>A:</strong> No! Setup is only needed once. After that, credentials are saved in <code>env.local</code> and used automatically.</p>
+
+<h3>Q: Can multiple people use the same installation?</h3>
+
+<p><strong>A:</strong> No. Each person should have their own copy with their own credentials. Virtual environments and credentials are user-specific.</p>
+
+<h3>Q: What happens if I run it twice on the same images?</h3>
+
+<p><strong>A:</strong> The tool checks for duplicate barcodes on the page and skips them. Only new barcodes are added.</p>
+
+<h3>Q: Can I use this on Windows?</h3>
+
+<p><strong>A:</strong> Yes, but you'll need to set up manually (setup.sh is for macOS/Linux). Follow the manual setup instructions in the README.</p>
+
+<h3>Q: How do I update my credentials?</h3>
+
+<p><strong>A:</strong> Edit the <code>env.local</code> file directly, or delete it and run <code>./setup.sh</code> again.</p>
+
+<h3>Q: Where do the uploaded images appear?</h3>
+
+<p><strong>A:</strong> Images are attached to the Confluence page you specified, and a table is added/updated with the barcode information.</p>
+
+<hr/>
+
+<h2>🎯 Best Practices</h2>
+
+<ac:structured-macro ac:name="panel">
+  <ac:parameter ac:name="bgColor">#EAE6FF</ac:parameter>
+  <ac:rich-text-body>
+    <ul>
+      <li>✅ <strong>Always do a dry-run first</strong> to preview what will be uploaded</li>
+      <li>✅ <strong>Use descriptive filenames</strong> for your images (they become attachment names)</li>
+      <li>✅ <strong>Keep your API token secret</strong> - never share or commit <code>env.local</code></li>
+      <li>✅ <strong>Use --no-lookup flags</strong> if you only need barcodes (faster)</li>
+      <li>✅ <strong>Check for duplicates</strong> before uploading large batches</li>
+      <li>✅ <strong>Use ZIP files</strong> for large image sets (easier to manage)</li>
+    </ul>
+  </ac:rich-text-body>
+</ac:structured-macro>
+
+<hr/>
+
+<h2>📞 Need Help?</h2>
+
+<p>If you run into issues:</p>
+
+<ol>
+  <li>Check the <strong>Troubleshooting</strong> section above</li>
+  <li>Read the detailed <code>README.md</code> in the project folder</li>
+  <li>Try running <code>./setup.sh</code> again to reset</li>
+  <li>Contact your team's tool administrator</li>
+</ol>
+
+<ac:structured-macro ac:name="info">
+  <ac:rich-text-body>
+    <p><strong>Quick Reference:</strong> Keep this page bookmarked for easy access to commands and troubleshooting!</p>
+  </ac:rich-text-body>
+</ac:structured-macro>
+

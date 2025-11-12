@@ -1,0 +1,44 @@
+# Python virtual environment - NEVER COMMIT THIS
+# Virtual environments contain hardcoded absolute paths and will not work on other machines
+.venv/
+venv/
+env/
+ENV/
+
+# Python cache
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+
+# Environment files with secrets
+.env
+.env.local
+env.local
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Debug output
+debug_dumps/
+.debug/
+*.log
+
+# Temporary files
+*.tmp
+.cache/
+
+# Distribution / packaging
+build/
+dist/
+*.egg-info/
+
